@@ -183,7 +183,7 @@ const FasonPage = () => {
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Adet</label>
+                            <label className="form-label">Kilo</label>
                             <input
                                 type="number"
                                 name="quantity"

@@ -1,3 +1,36 @@
+/* Hamburger menu and responsive navbar */
+.mobile-hamburger {
+  display: none;
+}
+.mobile-navbar {
+  display: none;
+}
+.desktop-navbar {
+  display: flex;
+}
+
+@media (max-width: 768px) {
+  .mobile-hamburger {
+    display: flex !important;
+    background: none;
+    border: none;
+    align-items: center;
+    margin-left: auto;
+    z-index: 101;
+  }
+  .desktop-navbar {
+    display: none !important;
+  }
+  .mobile-navbar {
+    display: flex !important;
+    flex-direction: column;
+    position: absolute;
+    right: 20px;
+    top: 70px;
+    min-width: 180px;
+    z-index: 100;
+  }
+}
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
 
 :root {

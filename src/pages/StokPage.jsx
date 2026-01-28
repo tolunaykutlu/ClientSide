@@ -4,8 +4,8 @@ import { Plus, Trash2, Edit2, Loader } from 'lucide-react';
 
 const StokPage = () => {
     const QUALITY_OPTIONS = ['430', '304', '316', 'PİRİNC', 'DKP', 'ALIMINYUM'];
-    const SURFACE_OPTIONS = ['BA', 'SB', '2B'];
-    const THICKNESS_OPTIONS = Array.from({ length: 20 }, (_, i) => (0.1 + i * 0.1).toFixed(2));
+    const SURFACE_OPTIONS = ['BA', 'SB', '2B', 'DESENLİ'];
+    const THICKNESS_OPTIONS = Array.from({ length: 30 }, (_, i) => (0.1 + i * 0.1).toFixed(2));// 0.10 to 3.00
 
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -148,7 +148,7 @@ const StokPage = () => {
                             />
                         </div>
                         <div className="form-group">
-                            <label className="form-label">Adet</label>
+                            <label className="form-label">Kilo</label>
                             <input
                                 type="number"
                                 name="quantity"
