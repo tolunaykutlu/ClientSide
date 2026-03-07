@@ -6,12 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/Stok': {
-        target: 'http://localhost:5115',
-        changeOrigin: true,
-        secure: false,
-      },
-      '/Fason': {
+      '/api': {
         target: 'http://localhost:5115',
         changeOrigin: true,
         secure: false,

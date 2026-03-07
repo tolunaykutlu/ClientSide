@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fasonService } from '../services/api';
-import { Plus, Trash2, Loader, Factory } from 'lucide-react';
+import { Plus, Trash2, Loader, Factory, Edit2 } from 'lucide-react';
 
 const FasonPage = () => {
     const QUALITY_OPTIONS = ["201", "202", "303", "304", "304 DDQ", "304L", "309S", "310", "310S", "316", "316L", "316Ti", "321", "409", "420", "430", "431", "440M", "309", "439", "630", 'PİRİNC', 'DKP', 'ALIMINYUM'];
@@ -10,7 +10,9 @@ const FasonPage = () => {
 
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [formData, setFormData] = useState({
+    const [editingId, setEditingId] = useState(null);
+
+    const initialFormData = {
         quality: '430',
         surfaceFinish: 'BA',
         thickness: '0.10',
@@ -19,7 +21,9 @@ const FasonPage = () => {
         quantity: 0,
         companyName: '',
         processType: 'Boy Kesim',
-    });
+    };
+
+    const [formData, setFormData] = useState(initialFormData);
 
     useEffect(() => {
         fetchProducts();
@@ -47,21 +51,36 @@ const FasonPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await fasonService.create(formData);
+            if (editingId) {
+                await fasonService.update(editingId, formData);
+            } else {
+                await fasonService.create(formData);
+            }
             fetchProducts();
-            setFormData({
-                quality: '430',
-                surfaceFinish: 'BA',
-                thickness: '0.10',
-                width: '',
-                length: 0,
-                quantity: 0,
-                companyName: '',
-                processType: 'Boy Kesim',
-            });
+            handleCancel();
         } catch (error) {
-            console.error('Error creating product:', error);
+            console.error('Error saving product:', error);
         }
+    };
+
+    const handleEdit = (product) => {
+        setEditingId(product.id);
+        setFormData({
+            quality: product.quality,
+            surfaceFinish: product.surfaceFinish,
+            thickness: Number(product.thickness).toFixed(2),
+            width: product.width,
+            length: product.length,
+            quantity: product.quantity,
+            companyName: product.companyName,
+            processType: product.processType,
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleCancel = () => {
+        setEditingId(null);
+        setFormData(initialFormData);
     };
 
     const handleDelete = async (id) => {
@@ -79,9 +98,11 @@ const FasonPage = () => {
         <div>
             <h1 className="page-title">Fason İşlemler</h1>
 
-            {/* Add Product Form */}
+            {/* İşlem Ekleme/Düzenleme Formu */}
             <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
-                <h2 style={{ marginBottom: '1.5rem', fontWeight: 600 }}>Yeni İşlem Ekle</h2>
+                <h2 style={{ marginBottom: '1.5rem', fontWeight: 600 }}>
+                    {editingId ? 'İşlemi Güncelle' : 'Yeni İşlem Ekle'}
+                </h2>
                 <form onSubmit={handleSubmit}>
                     <div className="form-grid">
                         <div className="form-group">
@@ -194,16 +215,28 @@ const FasonPage = () => {
                             />
                         </div>
                     </div>
-                    <button type="submit" className="glass-button">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Plus size={18} />
-                            Kaydet
-                        </div>
-                    </button>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                        <button type="submit" className="glass-button">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {editingId ? <Edit2 size={18} /> : <Plus size={18} />}
+                                {editingId ? 'Güncelle' : 'Kaydet'}
+                            </div>
+                        </button>
+                        {editingId && (
+                            <button
+                                type="button"
+                                onClick={handleCancel}
+                                className="glass-button"
+                                style={{ backgroundColor: 'rgba(30, 41, 59, 0.5)' }}
+                            >
+                                Vazgeç
+                            </button>
+                        )}
+                    </div>
                 </form>
             </div>
 
-            {/* Products List */}
+            {/* İşlem Listesi */}
             <div className="glass-panel" style={{ padding: '2rem' }}>
                 <h2 style={{ marginBottom: '1.5rem', fontWeight: 600 }}>Fason Takip Listesi</h2>
                 {loading ? (
@@ -238,13 +271,24 @@ const FasonPage = () => {
                                         <td>{product.length}</td>
                                         <td>{product.quantity}</td>
                                         <td>
-                                            <button
-                                                onClick={() => handleDelete(product.id)}
-                                                className="glass-button"
-                                                style={{ padding: '0.5rem', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button
+                                                    onClick={() => handleEdit(product)}
+                                                    className="glass-button"
+                                                    style={{ padding: '0.5rem', backgroundColor: 'rgba(14, 165, 233, 0.2)', color: '#0ea5e9' }}
+                                                    title="Düzenle"
+                                                >
+                                                    <Edit2 size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(product.id)}
+                                                    className="glass-button"
+                                                    style={{ padding: '0.5rem', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}
+                                                    title="Sil"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

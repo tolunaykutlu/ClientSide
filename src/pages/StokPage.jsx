@@ -5,11 +5,13 @@ import { Plus, Trash2, Edit2, Loader } from 'lucide-react';
 const StokPage = () => {
     const QUALITY_OPTIONS = ['430', '304', '316', 'PİRİNC', 'DKP', 'ALIMINYUM'];
     const SURFACE_OPTIONS = ['BA', 'SB', '2B', 'DESENLİ'];
-    const THICKNESS_OPTIONS = Array.from({ length: 30 }, (_, i) => (0.1 + i * 0.1).toFixed(2));// 0.10 to 3.00
+    const THICKNESS_OPTIONS = Array.from({ length: 30 }, (_, i) => (0.1 + i * 0.1).toFixed(2));// 0.10'dan 3.00'e kadar
 
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [formData, setFormData] = useState({
+    const [editingId, setEditingId] = useState(null);
+
+    const initialFormData = {
         quality: '430',
         surfaceFinish: 'BA',
         thickness: '0.10',
@@ -17,7 +19,9 @@ const StokPage = () => {
         length: 0,
         quantity: 0,
         location: '',
-    });
+    };
+
+    const [formData, setFormData] = useState(initialFormData);
 
     useEffect(() => {
         fetchProducts();
@@ -45,20 +49,35 @@ const StokPage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await stokService.create(formData);
+            if (editingId) {
+                await stokService.update(editingId, formData);
+            } else {
+                await stokService.create(formData);
+            }
             fetchProducts();
-            setFormData({
-                quality: '430',
-                surfaceFinish: 'BA',
-                thickness: '0.10',
-                width: '',
-                length: 0,
-                quantity: 0,
-                location: '',
-            });
+            handleCancel();
         } catch (error) {
-            console.error('Error creating product:', error);
+            console.error('Error saving product:', error);
         }
+    };
+
+    const handleEdit = (product) => {
+        setEditingId(product.id);
+        setFormData({
+            quality: product.quality,
+            surfaceFinish: product.surfaceFinish,
+            thickness: Number(product.thickness).toFixed(2),
+            width: product.width,
+            length: product.length,
+            quantity: product.quantity,
+            location: product.location || '',
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleCancel = () => {
+        setEditingId(null);
+        setFormData(initialFormData);
     };
 
     const handleDelete = async (id) => {
@@ -76,11 +95,14 @@ const StokPage = () => {
         <div>
             <h1 className="page-title">Stok Yönetimi</h1>
 
-            {/* Add Product Form */}
+            {/* Ürün Ekleme/Düzenleme Formu */}
             <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
-                <h2 style={{ marginBottom: '1.5rem', fontWeight: 600 }}>Yeni Ürün Ekle</h2>
+                <h2 style={{ marginBottom: '1.5rem', fontWeight: 600 }}>
+                    {editingId ? 'Ürünü Güncelle' : 'Yeni Ürün Ekle'}
+                </h2>
                 <form onSubmit={handleSubmit}>
                     <div className="form-grid">
+                        {/* ... (form fields) ... */}
                         <div className="form-group">
                             <label className="form-label">Kalite</label>
                             <select
@@ -169,16 +191,28 @@ const StokPage = () => {
                             />
                         </div>
                     </div>
-                    <button type="submit" className="glass-button">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <Plus size={18} />
-                            Ekle
-                        </div>
-                    </button>
+                    <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                        <button type="submit" className="glass-button">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                {editingId ? <Edit2 size={18} /> : <Plus size={18} />}
+                                {editingId ? 'Güncelle' : 'Ekle'}
+                            </div>
+                        </button>
+                        {editingId && (
+                            <button
+                                type="button"
+                                onClick={handleCancel}
+                                className="glass-button"
+                                style={{ backgroundColor: 'rgba(30, 41, 59, 0.5)' }}
+                            >
+                                Vazgeç
+                            </button>
+                        )}
+                    </div>
                 </form>
             </div>
 
-            {/* Products List */}
+            {/* Ürün Listesi */}
             <div className="glass-panel" style={{ padding: '2rem' }}>
                 <h2 style={{ marginBottom: '1.5rem', fontWeight: 600 }}>Stok Listesi</h2>
                 {loading ? (
@@ -211,13 +245,24 @@ const StokPage = () => {
                                         <td>{product.quantity}</td>
                                         <td>{product.location}</td>
                                         <td>
-                                            <button
-                                                onClick={() => handleDelete(product.id)}
-                                                className="glass-button"
-                                                style={{ padding: '0.5rem', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
+                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                <button
+                                                    onClick={() => handleEdit(product)}
+                                                    className="glass-button"
+                                                    style={{ padding: '0.5rem', backgroundColor: 'rgba(14, 165, 233, 0.2)', color: '#0ea5e9' }}
+                                                    title="Düzenle"
+                                                >
+                                                    <Edit2 size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(product.id)}
+                                                    className="glass-button"
+                                                    style={{ padding: '0.5rem', backgroundColor: 'rgba(239, 68, 68, 0.2)', color: '#ef4444' }}
+                                                    title="Sil"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

@@ -1,4 +1,4 @@
-const API_URL = 'http://localhost:5115/api/Auth';
+const API_URL = '/api/Auth';
 
 export const authService = {
     // Kayıt olma
@@ -40,10 +40,20 @@ export const authService = {
                 throw new Error(error || 'Giriş başarısız');
             }
 
-            let token = await response.text();
+            let token;
+            const contentType = response.headers.get('content-type');
+
+            if (contentType && contentType.includes('application/json')) {
+                const data = await response.json();
+                token = data.token || data.accessToken || data;
+            } else {
+                token = await response.text();
+            }
 
             // Token'daki gereksiz karakterleri temizle (tırnak işaretleri, boşluklar vb.)
-            token = token.replace(/^["']|["']$/g, '').trim();
+            if (typeof token === 'string') {
+                token = token.replace(/^["']|["']$/g, '').trim();
+            }
 
             // Token'ı localStorage'a kaydet
             localStorage.setItem('token', token);
