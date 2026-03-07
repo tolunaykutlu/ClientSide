@@ -41,21 +41,28 @@ export const authService = {
             }
 
             let token;
-            const contentType = response.headers.get('content-type');
-
-            if (contentType && contentType.includes('application/json')) {
+            try {
+                // Yanıtı JSON olarak işlemeye çalış (Standart ve güvenli yöntem)
                 const data = await response.json();
-                token = data.token || data.accessToken || data;
-            } else {
+                // Backend { token: "..." } şeklinde nesne dönerse:
+                if (typeof data === 'object' && data.token) {
+                    token = data.token;
+                } else {
+                    // Backend direkt string olarak "token..." dönerse:
+                    token = String(data);
+                }
+            } catch (e) {
+                // JSON değilse düz metin olarak al
                 token = await response.text();
             }
 
-            // Token'daki gereksiz karakterleri temizle (tırnak işaretleri, boşluklar vb.)
-            if (typeof token === 'string') {
-                token = token.replace(/^["']|["']$/g, '').trim();
+            if (!token) {
+                throw new Error('Token alınamadı');
             }
 
             // Token'ı localStorage'a kaydet
+            // NOT: Production ortamında güvenlik için HTTPOnly Cookie kullanılması önerilir.
+            // XSS saldırılarına karşı localStorage risklidir.
             localStorage.setItem('token', token);
             localStorage.setItem('username', username);
 
