@@ -2,18 +2,15 @@ import axios from 'axios';
 
 const api = axios.create({
     baseURL: '/api/',
+    withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Request interceptor - her istekte token'ı ekle
+// Request interceptor - token artık cookie'de taşınıyor, header'a eklemeye gerek yok.
 api.interceptors.request.use(
     (config) => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
         return config;
     },
     (error) => {
@@ -28,9 +25,8 @@ api.interceptors.response.use(
     },
     (error) => {
         if (error.response && error.response.status === 401) {
-            // Token geçersiz veya yok - login'e yönlendir
-            localStorage.removeItem('token');
-            localStorage.removeItem('username');
+            // Yetkisiz erişim - login'e yönlendir
+            localStorage.removeItem('isAuthenticated');
             window.location.href = '/login';
         }
         return Promise.reject(error);
@@ -51,6 +47,14 @@ export const fasonService = {
     create: (data) => api.post('Fason', data),
     update: (id, data) => api.put(`Fason/${id}`, data),
     delete: (id) => api.delete(`Fason/${id}`),
+};
+
+export const firmaService = {
+    getAll: () => api.get('Firma'),
+    getById: (id) => api.get(`Firma/${id}`),
+    create: (data) => api.post('Firma', data),
+    update: (id, data) => api.put(`Firma/${id}`, data),
+    delete: (id) => api.delete(`Firma/${id}`),
 };
 
 export default api;

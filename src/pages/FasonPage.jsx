@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import { fasonService } from '../services/api';
-import { Plus, Trash2, Loader, Factory, Edit2 } from 'lucide-react';
+import { fasonService, firmaService } from '../services/api';
+import { Plus, Trash2, Loader, Factory, Edit2, Building2 } from 'lucide-react';
 
 const FasonPage = () => {
     const QUALITY_OPTIONS = ["201", "202", "303", "304", "304 DDQ", "304L", "309S", "310", "310S", "316", "316L", "316Ti", "321", "409", "420", "430", "431", "440M", "309", "439", "630", 'PİRİNC', 'DKP', 'ALIMINYUM'];
     const SURFACE_OPTIONS = ['BA', 'SB', '2B'];
-    const COMPANY_OPTIONS = ['KUTLU', 'ÇİMEN', 'SIRAKAYA', 'İMPEKS', 'KOCA'];
     const THICKNESS_OPTIONS = Array.from({ length: 20 }, (_, i) => (0.1 + i * 0.1).toFixed(2));
 
     const [products, setProducts] = useState([]);
+    const [firms, setFirms] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingId, setEditingId] = useState(null);
+    const [showAddFirma, setShowAddFirma] = useState(false);
+    const [newFirmaName, setNewFirmaName] = useState('');
 
     const initialFormData = {
         quality: '430',
@@ -27,6 +29,7 @@ const FasonPage = () => {
 
     useEffect(() => {
         fetchProducts();
+        fetchFirms();
     }, []);
 
     const fetchProducts = async () => {
@@ -37,6 +40,28 @@ const FasonPage = () => {
             console.error('Error fetching data:', error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchFirms = async () => {
+        try {
+            const response = await firmaService.getAll();
+            setFirms(response.data);
+        } catch (error) {
+            console.error('Error fetching firms:', error);
+        }
+    };
+
+    const handleAddFirma = async () => {
+        if (!newFirmaName.trim()) return;
+        try {
+            await firmaService.create({ Name: newFirmaName });
+            setNewFirmaName('');
+            setShowAddFirma(false);
+            fetchFirms();
+        } catch (error) {
+            console.error('Error adding firma:', error);
+            alert('Firma eklenirken bir hata oluştu.');
         }
     };
 
@@ -107,20 +132,19 @@ const FasonPage = () => {
                     <div className="form-grid">
                         <div className="form-group">
                             <label className="form-label">Firma Adı</label>
-                            <input
-                                list="company-options"
-                                type="text"
+                            <select
                                 name="companyName"
                                 value={formData.companyName}
                                 onChange={handleInputChange}
                                 className="glass-input"
                                 required
-                            />
-                            <datalist id="company-options">
-                                {COMPANY_OPTIONS.map((option) => (
-                                    <option key={option} value={option} />
+                                style={{ backgroundColor: 'rgba(30, 41, 59, 0.7)' }}
+                            >
+                                <option value="">Firma Seçin</option>
+                                {firms.map((firma) => (
+                                    <option key={firma.id} value={firma.name}>{firma.name}</option>
                                 ))}
-                            </datalist>
+                            </select>
                         </div>
                         <div className="form-group">
                             <label className="form-label">İşlem Tipi</label>
@@ -222,6 +246,19 @@ const FasonPage = () => {
                                 {editingId ? 'Güncelle' : 'Kaydet'}
                             </div>
                         </button>
+                        {!editingId && (
+                            <button
+                                type="button"
+                                onClick={() => setShowAddFirma(true)}
+                                className="glass-button"
+                                style={{ backgroundColor: 'rgba(14, 165, 233, 0.2)', color: '#0ea5e9' }}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Building2 size={18} />
+                                    Firma Ekle
+                                </div>
+                            </button>
+                        )}
                         {editingId && (
                             <button
                                 type="button"
@@ -235,6 +272,54 @@ const FasonPage = () => {
                     </div>
                 </form>
             </div>
+
+            {/* Firma Ekleme Modalı */}
+            {showAddFirma && (
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0,0,0,0.6)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000,
+                    backdropFilter: 'blur(8px)'
+                }}>
+                    <div className="glass-panel" style={{ padding: '2rem', width: '400px', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        <h3 style={{ marginBottom: '1.5rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <Building2 size={24} color="#0ea5e9" />
+                            Yeni Firma Ekle
+                        </h3>
+                        <div className="form-group">
+                            <label className="form-label">Firma Adı</label>
+                            <input
+                                type="text"
+                                value={newFirmaName}
+                                onChange={(e) => setNewFirmaName(e.target.value)}
+                                className="glass-input"
+                                placeholder="Örn: ABC Metal"
+                                autoFocus
+                                onKeyDown={(e) => e.key === 'Enter' && handleAddFirma()}
+                            />
+                        </div>
+                        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+                            <button onClick={handleAddFirma} className="glass-button" style={{ flex: 1 }}>
+                                Ekle
+                            </button>
+                            <button
+                                onClick={() => { setShowAddFirma(false); setNewFirmaName(''); }}
+                                className="glass-button"
+                                style={{ flex: 1, backgroundColor: 'rgba(30, 41, 59, 0.5)' }}
+                            >
+                                İptal
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* İşlem Listesi */}
             <div className="glass-panel" style={{ padding: '2rem' }}>

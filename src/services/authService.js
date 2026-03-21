@@ -9,6 +9,7 @@ export const authService = {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({ username, password }),
             });
 
@@ -32,6 +33,7 @@ export const authService = {
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify({ username, password }),
             });
 
@@ -40,57 +42,44 @@ export const authService = {
                 throw new Error(error || 'Giriş başarısız');
             }
 
-            let token;
-            try {
-                // Yanıtı JSON olarak işlemeye çalış (Standart ve güvenli yöntem)
-                const data = await response.json();
-                // Backend { token: "..." } şeklinde nesne dönerse:
-                if (typeof data === 'object' && data.token) {
-                    token = data.token;
-                } else {
-                    // Backend direkt string olarak "token..." dönerse:
-                    token = String(data);
-                }
-            } catch (e) {
-                // JSON değilse düz metin olarak al
-                token = await response.text();
-            }
+            // Backend auth mekanizması güncellendi, token artık HttpOnly cookie olarak dönülüyor.
+            // Bu yüzden response body'den token okumaya gerek yok.
+            localStorage.setItem('isAuthenticated', 'true');
 
-            if (!token) {
-                throw new Error('Token alınamadı');
-            }
-
-            // Token'ı localStorage'a kaydet
-            // NOT: Production ortamında güvenlik için HTTPOnly Cookie kullanılması önerilir.
-            // XSS saldırılarına karşı localStorage risklidir.
-            localStorage.setItem('token', token);
-            localStorage.setItem('username', username);
-
-            return { success: true, token };
+            return { success: true };
         } catch (error) {
             return { success: false, error: error.message };
         }
     },
 
     // Çıkış yapma
-    logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('username');
+    async logout() {
+        try {
+            // Çıkış işlemlerini backend tarafında cookie'yi silmek amaçlı bir request'e dönüştürüyoruz
+            await fetch(`${API_URL}/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+        } catch (e) {
+            console.error('Logout isteği hatası', e);
+        }
+        localStorage.removeItem('isAuthenticated');
+        // Uygulamada token ve kullanıcı adı bilgileri temizlenmiş oldu
     },
 
     // Token kontrolü
     isAuthenticated() {
-        return !!localStorage.getItem('token');
+        return localStorage.getItem('isAuthenticated') === 'true';
     },
 
     // Kullanıcı adını al
     getUsername() {
-        return localStorage.getItem('username');
+        // Doğrudan saklanılan kullanıcı bilgisi (XSS) kaldırıldı
+        return null;
     },
 
     // Token'ı al
     getToken() {
-
-        return localStorage.getItem('token');
+        return null;
     }
 };
