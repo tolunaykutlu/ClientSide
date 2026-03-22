@@ -1,4 +1,4 @@
-const API_URL = '/api/Auth';
+const API_URL = 'https://stainlessmarketapi-production.up.railway.app/api/Auth';
 
 export const authService = {
     // Kayıt olma

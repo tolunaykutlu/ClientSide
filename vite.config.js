@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5115',
+        target: 'https://stainlessmarketapi-production.up.railway.app',
         changeOrigin: true,
         secure: false,
       },
