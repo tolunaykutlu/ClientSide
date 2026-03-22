@@ -1,4 +1,4 @@
-const API_URL = 'https://stainlessmarketapi-production.up.railway.app/api/Auth';
+const API_URL = `${import.meta.env.VITE_API_BASE_URL}/Auth`;
 
 export const authService = {
     // Kayıt olma
