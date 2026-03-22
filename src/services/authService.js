@@ -25,15 +25,11 @@ export const authService = {
         }
     },
 
-    // Giriş yapma
     async login(username, password) {
         try {
             const response = await fetch(`${API_URL}/login`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, password }),
             });
 
@@ -42,30 +38,64 @@ export const authService = {
                 throw new Error(error || 'Giriş başarısız');
             }
 
-            // Backend auth mekanizması güncellendi, token artık HttpOnly cookie olarak dönülüyor.
-            // Bu yüzden response body'den token okumaya gerek yok.
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
             localStorage.setItem('isAuthenticated', 'true');
-
             return { success: true };
         } catch (error) {
             return { success: false, error: error.message };
         }
     },
 
-    // Çıkış yapma
     async logout() {
         try {
-            // Çıkış işlemlerini backend tarafında cookie'yi silmek amaçlı bir request'e dönüştürüyoruz
-            await fetch(`${API_URL}/logout`, {
-                method: 'POST',
-                credentials: 'include'
-            });
-        } catch (e) {
-            console.error('Logout isteği hatası', e);
-        }
+            await fetch(`${API_URL}/logout`, { method: 'POST' });
+        } catch (e) { }
+        localStorage.removeItem('token');
         localStorage.removeItem('isAuthenticated');
-        // Uygulamada token ve kullanıcı adı bilgileri temizlenmiş oldu
     },
+
+    // Giriş yapma
+    /*  async login(username, password) {
+         try {
+             const response = await fetch(`${API_URL}/login`, {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                 },
+                 credentials: 'include',
+                 body: JSON.stringify({ username, password }),
+             });
+ 
+             if (!response.ok) {
+                 const error = await response.text();
+                 throw new Error(error || 'Giriş başarısız');
+             }
+ 
+             // Backend auth mekanizması güncellendi, token artık HttpOnly cookie olarak dönülüyor.
+             // Bu yüzden response body'den token okumaya gerek yok.
+             localStorage.setItem('isAuthenticated', 'true');
+ 
+             return { success: true };
+         } catch (error) {
+             return { success: false, error: error.message };
+         }
+     },
+ 
+     // Çıkış yapma
+     async logout() {
+         try {
+             // Çıkış işlemlerini backend tarafında cookie'yi silmek amaçlı bir request'e dönüştürüyoruz
+             await fetch(`${API_URL}/logout`, {
+                 method: 'POST',
+                 credentials: 'include'
+             });
+         } catch (e) {
+             console.error('Logout isteği hatası', e);
+         }
+         localStorage.removeItem('isAuthenticated');
+         // Uygulamada token ve kullanıcı adı bilgileri temizlenmiş oldu
+     }, */
 
     // Token kontrolü
     isAuthenticated() {

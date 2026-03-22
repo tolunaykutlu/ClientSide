@@ -2,31 +2,30 @@ import axios from 'axios';
 
 const api = axios.create({
     baseURL: `${import.meta.env.VITE_API_BASE_URL}/`,
-    withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
     },
 });
 
-// Request interceptor - token artık cookie'de taşınıyor, header'a eklemeye gerek yok.
+// Her istekte token'ı header'a ekle
 api.interceptors.request.use(
     (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
-// Response interceptor - 401 hatalarını yakala
+// 401 hatalarını yakala
 api.interceptors.response.use(
-    (response) => {
-        return response;
-    },
+    (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            // Yetkisiz erişim - login'e yönlendir
             localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('token');
             window.location.href = '/login';
         }
         return Promise.reject(error);
