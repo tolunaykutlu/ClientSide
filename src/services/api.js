@@ -45,6 +45,7 @@ export const fasonService = {
     getByCompany: (companyName) => api.get(`Fason/company/${companyName}`),
     create: (data) => api.post('Fason', data),
     update: (id, data) => api.put(`Fason/${id}`, data),
+    toggleDone: (id) => api.put(`Fason/${id}/toggle-done`),
     delete: (id) => api.delete(`Fason/${id}`),
 };
 

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fasonService, firmaService } from '../services/api';
-import { Plus, Trash2, Loader, Factory, Edit2, Building2 } from 'lucide-react';
+import { Plus, Trash2, Loader, Factory, Edit2, Building2, CheckCircle2 } from 'lucide-react';
 
 const FasonPage = () => {
     const QUALITY_OPTIONS = ["201", "202", "303", "304", "304 DDQ", "304L", "309S", "310", "310S", "316", "316L", "316Ti", "321", "409", "420", "430", "431", "440M", "309", "439", "630", 'PİRİNC', 'DKP', 'ALIMINYUM'];
@@ -118,6 +118,16 @@ const FasonPage = () => {
             }
         }
     };
+
+    const handleToggleDone = async (id) => {
+        try {
+            await fasonService.toggleDone(id);
+            fetchProducts();
+        } catch (error) {
+            console.error('Error toggling done status:', error);
+        }
+    };
+
 
     return (
         <div>
@@ -312,7 +322,7 @@ const FasonPage = () => {
                             <button
                                 onClick={() => { setShowAddFirma(false); setNewFirmaName(''); }}
                                 className="glass-button"
-                                style={{ flex: 1, backgroundColor: 'rgba(30, 41, 59, 0.5)' }}
+                                style={{ flex: 1, backgroundColor: 'rgba(255, 255, 255, 0.83)' }}
                             >
                                 İptal
                             </button>
@@ -346,7 +356,7 @@ const FasonPage = () => {
                             </thead>
                             <tbody>
                                 {products.map((product) => (
-                                    <tr key={product.id}>
+                                    <tr key={product.id} style={{ color: product.isDone ? '#080808' : 'white' }}>
                                         <td>{product.companyName}</td>
                                         <td>{product.processType}</td>
                                         <td>{product.quality}</td>
@@ -360,7 +370,7 @@ const FasonPage = () => {
                                                 <button
                                                     onClick={() => handleEdit(product)}
                                                     className="glass-button"
-                                                    style={{ padding: '0.5rem', backgroundColor: 'rgba(14, 165, 233, 0.2)', color: '#0ea5e9' }}
+                                                    style={{ padding: '0.5rem', backgroundColor: 'rgba(255, 255, 255, 1)', color: '#0ea5e9' }}
                                                     title="Düzenle"
                                                 >
                                                     <Edit2 size={16} />
@@ -372,6 +382,18 @@ const FasonPage = () => {
                                                     title="Sil"
                                                 >
                                                     <Trash2 size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleToggleDone(product.id)}
+                                                    className="glass-button"
+                                                    style={{ 
+                                                        padding: '0.5rem', 
+                                                        backgroundColor: product.isDone ? 'rgba(34, 197, 94, 0.4)' : 'rgba(34, 197, 94, 0.2)', 
+                                                        color: product.isDone ? '#16a34a' : '#22c55e' 
+                                                    }}
+                                                    title={product.isDone ? 'Tamamlandı' : 'Tamamla'}
+                                                >
+                                                    <CheckCircle2 size={16} />
                                                 </button>
                                             </div>
                                         </td>
