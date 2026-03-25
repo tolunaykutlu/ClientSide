@@ -35,7 +35,8 @@ const FasonPage = () => {
     const fetchProducts = async () => {
         try {
             const response = await fasonService.getAll();
-            setProducts(response.data);
+            const sortedData = response.data.sort((a, b) => b.id - a.id);
+            setProducts(sortedData);
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
