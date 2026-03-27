@@ -262,7 +262,7 @@ const FasonPage = () => {
                                 type="button"
                                 onClick={() => setShowAddFirma(true)}
                                 className="glass-button"
-                                style={{ backgroundColor: 'rgba(14, 165, 233, 0.2)', color: '#0ea5e9' }}
+                                style={{ backgroundColor: 'rgba(255, 255, 255, 1)', color: '#0ea5e9' }}
                             >
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                     <Building2 size={18} />
@@ -357,7 +357,7 @@ const FasonPage = () => {
                             </thead>
                             <tbody>
                                 {products.map((product) => (
-                                    <tr key={product.id} style={{ color: product.isDone ? '#080808' : 'white' }}>
+                                    <tr key={product.id} style={{ color: product.isDone ? '#700202ff' : 'white' }}>
                                         <td>{product.companyName}</td>
                                         <td>{product.processType}</td>
                                         <td>{product.quality}</td>
@@ -387,10 +387,10 @@ const FasonPage = () => {
                                                 <button
                                                     onClick={() => handleToggleDone(product.id)}
                                                     className="glass-button"
-                                                    style={{ 
-                                                        padding: '0.5rem', 
-                                                        backgroundColor: product.isDone ? 'rgba(34, 197, 94, 0.4)' : 'rgba(34, 197, 94, 0.2)', 
-                                                        color: product.isDone ? '#16a34a' : '#22c55e' 
+                                                    style={{
+                                                        padding: '0.5rem',
+                                                        backgroundColor: product.isDone ? 'rgba(34, 197, 94, 0.4)' : 'rgba(34, 197, 94, 0.2)',
+                                                        color: product.isDone ? '#16a34a' : '#22c55e'
                                                     }}
                                                     title={product.isDone ? 'Tamamlandı' : 'Tamamla'}
                                                 >
