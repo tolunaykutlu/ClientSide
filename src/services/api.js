@@ -41,6 +41,7 @@ export const stokService = {
 
 export const fasonService = {
     getAll: () => api.get('Fason'),
+    getPaged: (page, pageSize) => api.get('Fason/paged', { params: { page, pageSize } }),
     getById: (id) => api.get(`Fason/${id}`),
     getByCompany: (companyName) => api.get(`Fason/company/${companyName}`),
     create: (data) => api.post('Fason', data),

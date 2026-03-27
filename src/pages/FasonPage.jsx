@@ -13,6 +13,11 @@ const FasonPage = () => {
     const [editingId, setEditingId] = useState(null);
     const [showAddFirma, setShowAddFirma] = useState(false);
     const [newFirmaName, setNewFirmaName] = useState('');
+    
+    // Pagination States
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
+    const PAGE_SIZE = 15;
 
     const initialFormData = {
         quality: '430',
@@ -29,14 +34,19 @@ const FasonPage = () => {
 
     useEffect(() => {
         fetchProducts();
+    }, [currentPage]);
+
+    useEffect(() => {
         fetchFirms();
     }, []);
 
     const fetchProducts = async () => {
+        setLoading(true);
         try {
-            const response = await fasonService.getAll();
-            const sortedData = response.data.sort((a, b) => b.id - a.id);
-            setProducts(sortedData);
+            const response = await fasonService.getPaged(currentPage, PAGE_SIZE);
+            const { items, totalCount } = response.data;
+            setProducts(items);
+            setTotalPages(Math.ceil(totalCount / PAGE_SIZE));
         } catch (error) {
             console.error('Error fetching data:', error);
         } finally {
@@ -409,6 +419,55 @@ const FasonPage = () => {
                                 )}
                             </tbody>
                         </table>
+                    </div>
+                )}
+
+                {/* Pagination Controls */}
+                {!loading && totalPages > 1 && (
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        gap: '1rem',
+                        marginTop: '2rem',
+                        padding: '1rem',
+                        borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+                    }}>
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                            disabled={currentPage === 1}
+                            className="glass-button"
+                            style={{
+                                padding: '0.5rem 1rem',
+                                backgroundColor: currentPage === 1 ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.1)',
+                                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                                opacity: currentPage === 1 ? 0.5 : 1
+                            }}
+                        >
+                            Geri
+                        </button>
+
+                        <div style={{
+                            fontSize: '0.9rem',
+                            fontWeight: 500,
+                            color: 'rgba(255, 255, 255, 0.7)'
+                        }}>
+                            Sayfa <span style={{ color: '#0ea5e9', fontWeight: 600 }}>{currentPage}</span> / {totalPages}
+                        </div>
+
+                        <button
+                            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                            disabled={currentPage === totalPages}
+                            className="glass-button"
+                            style={{
+                                padding: '0.5rem 1rem',
+                                backgroundColor: currentPage === totalPages ? 'rgba(255, 255, 255, 0.05)' : 'rgba(255, 255, 255, 0.1)',
+                                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                                opacity: currentPage === totalPages ? 0.5 : 1
+                            }}
+                        >
+                            İleri
+                        </button>
                     </div>
                 )}
             </div>
