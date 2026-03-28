@@ -24,7 +24,7 @@ const FasonPage = () => {
         surfaceFinish: 'BA',
         thickness: '0.10',
         width: '',
-        length: 0,
+        length: '',
         quantity: 0,
         companyName: '',
         processType: 'Boy Kesim',

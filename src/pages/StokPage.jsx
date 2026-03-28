@@ -3,8 +3,8 @@ import { stokService } from '../services/api';
 import { Plus, Trash2, Edit2, Loader } from 'lucide-react';
 
 const StokPage = () => {
-    const QUALITY_OPTIONS = ['430', '304', '316', 'PİRİNC', 'DKP', 'ALIMINYUM'];
-    const SURFACE_OPTIONS = ['BA', 'SB', '2B', 'DESENLİ'];
+    const QUALITY_OPTIONS = ['430', '409', '410', '304', '316', 'PIRINC', 'DKP', 'ALIMINYUM'];
+    const SURFACE_OPTIONS = ['BA', 'BA/PVC', 'SB', '2B', 'DESENLİ'];
     const THICKNESS_OPTIONS = Array.from({ length: 30 }, (_, i) => (0.1 + i * 0.1).toFixed(2));// 0.10'dan 3.00'e kadar
 
     const [products, setProducts] = useState([]);
@@ -14,9 +14,9 @@ const StokPage = () => {
     const initialFormData = {
         quality: '430',
         surfaceFinish: 'BA',
-        thickness: '0.10',
+        thickness: '0.50',
         width: '',
-        length: 0,
+        length: '',
         quantity: 0,
         location: '',
     };
@@ -94,7 +94,7 @@ const StokPage = () => {
 
     return (
         <div>
-            <h1 className="page-title">Stok Yönetimi</h1>
+            <h1 className="page-title">Ürün Listesi</h1>
 
             {/* Ürün Ekleme/Düzenleme Formu */}
             <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
