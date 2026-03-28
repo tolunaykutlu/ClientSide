@@ -4,8 +4,8 @@ import { Plus, Trash2, Loader, Factory, Edit2, Building2, CheckCircle2 } from 'l
 
 const FasonPage = () => {
     const QUALITY_OPTIONS = ["201", "202", "303", "304", "304 DDQ", "304L", "309S", "310", "310S", "316", "316L", "316Ti", "321", "409", "420", "430", "431", "440M", "309", "439", "630", 'PİRİNC', 'DKP', 'ALIMINYUM'];
-    const SURFACE_OPTIONS = ['BA', 'SB', '2B'];
-    const THICKNESS_OPTIONS = Array.from({ length: 20 }, (_, i) => (0.1 + i * 0.1).toFixed(2));
+    const SURFACE_OPTIONS = ['BA', 'SB', '2B', "BA/PVC", "SB/PVC"];
+    const THICKNESS_OPTIONS = Array.from({ length: 30 }, (_, i) => (0.1 + i * 0.1).toFixed(2));
 
     const [products, setProducts] = useState([]);
     const [firms, setFirms] = useState([]);
@@ -13,7 +13,7 @@ const FasonPage = () => {
     const [editingId, setEditingId] = useState(null);
     const [showAddFirma, setShowAddFirma] = useState(false);
     const [newFirmaName, setNewFirmaName] = useState('');
-    
+
     // Pagination States
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
@@ -28,6 +28,7 @@ const FasonPage = () => {
         quantity: 0,
         companyName: '',
         processType: 'Boy Kesim',
+        entryDate: new Date().toISOString().split('T')[0],
     };
 
     const [formData, setFormData] = useState(initialFormData);
@@ -110,6 +111,7 @@ const FasonPage = () => {
             quantity: product.quantity,
             companyName: product.companyName,
             processType: product.processType,
+            entryDate: product.entryDate ? new Date(product.entryDate).toISOString().split('T')[0] : '',
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -151,6 +153,17 @@ const FasonPage = () => {
                 </h2>
                 <form onSubmit={handleSubmit}>
                     <div className="form-grid">
+                        <div className="form-group">
+                            <label className="form-label">Tarih</label>
+                            <input
+                                type="date"
+                                name="entryDate"
+                                value={formData.entryDate}
+                                onChange={handleInputChange}
+                                className="glass-input"
+                                required
+                            />
+                        </div>
                         <div className="form-group">
                             <label className="form-label">Firma Adı</label>
                             <select
@@ -354,6 +367,7 @@ const FasonPage = () => {
                         <table>
                             <thead>
                                 <tr>
+                                    <th>Tarih</th>
                                     <th>Firma Adı</th>
                                     <th>İşlem</th>
                                     <th>Kalite</th>
@@ -368,6 +382,7 @@ const FasonPage = () => {
                             <tbody>
                                 {products.map((product) => (
                                     <tr key={product.id} style={{ color: product.isDone ? '#700202ff' : 'white' }}>
+                                        <td>{product.entryDate ? new Date(product.entryDate).toLocaleDateString('tr-TR') : '-'}</td>
                                         <td>{product.companyName}</td>
                                         <td>{product.processType}</td>
                                         <td>{product.quality}</td>
@@ -412,7 +427,7 @@ const FasonPage = () => {
                                 ))}
                                 {products.length === 0 && (
                                     <tr>
-                                        <td colSpan="9" style={{ textAlign: 'center', padding: '2rem' }}>
+                                        <td colSpan="10" style={{ textAlign: 'center', padding: '2rem' }}>
                                             Kayıt bulunamadı.
                                         </td>
                                     </tr>
